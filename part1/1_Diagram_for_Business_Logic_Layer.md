@@ -7,7 +7,6 @@ This diagram shows the structure of the core entities in the HBnB application:
 - Review
 - Amenity
 
-It illustrates their attributes, methods (without `{}` to avoid Mermaid GitHub error), and how they are related to each other in the business logic layer.
 
 ```mermaid
 classDiagram
