@@ -22,13 +22,10 @@ Design rationale for all components
  holbertonschool-hbnb/
 └── part1/
     ├── diagrams/
-    │   ├── package_diagram.png
-    │   ├── class_diagram.png
-    │   └── sequence_diagrams/
-    │       ├── user_registration.png
-    │       ├── place_creation.png
-    │       ├── review_submission.png
-    │       └── list_places.png
+    │   ├── 0_High_Level_Package_Diagram.md
+    │   ├── 1_Diagram_for_Business_Logic_Layer.md
+    │   └── 2_Diagrams_for_API_Calls.md
+    │ 
     └── documentation/
         └── HBnB_Technical_Documentation.pdf
 ```
