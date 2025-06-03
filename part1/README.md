@@ -40,5 +40,3 @@ Four diagrams representing the flow of interactions between layers for each API 
 
 ---
 
-### Notes
-All diagrams are created using Mermaid.js and follow UML notation. This documentation provides a clear overview of the system's design and is structured to support the next implementation phase.
