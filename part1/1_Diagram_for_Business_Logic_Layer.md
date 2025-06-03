@@ -1,4 +1,3 @@
-
 # Business Logic Layer - Class Diagram
 
 This diagram shows the structure of the core entities in the HBnB application:
