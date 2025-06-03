@@ -1,4 +1,8 @@
-## HBnB Evolution - Part 1: Technical Documentation
+ <img src="https://github.com/user-attachments/assets/5f8d33ce-fed8-438a-935c-a9916afef26e" width="150">
+ 
+ <dive></dive>
+ 
+ ## HBnB Evolution - Part 1: Technical Documentation
 Welcome to Part 1 of the HBnB Evolution project — a simplified AirBnB-like application designed to teach and demonstrate architectural design, software modeling, and documentation principles.
 
 This part of the project is focused entirely on technical documentation, which will serve as the blueprint for implementation in later phases.
@@ -144,5 +148,18 @@ Directory for this part: /part1
 
 Status: ✅ 100% Documentation Complete
 
-🛠 Maintainers
-Project by Holberton School students as part of the HBnB Evolution series.
+
+##  <img src="https://img.icons8.com/ios/452/github.png" width="30"/> Authors: 
+We Worked together to implement, test, and document each daigram together. Each member did contribute to it.
+
+- Khulood AlOtaibi
+- Maram Alsofyani
+- Hessah Alotaysh
+  
+<br>
+
+[![GitHub](https://img.shields.io/badge/GitHub-Khulood_AlOtaibi-lightpink)](https://github.com/KhuloodGhazi)
+[![GitHub](https://img.shields.io/badge/GitHub-Maram_Alsofyani-lightpink)](https://github.com/maram-ra)
+[![GitHub](https://img.shields.io/badge/GitHub-Hessah_Alotaysh-lightpink)](https://github.com/hessafa)
+
+
