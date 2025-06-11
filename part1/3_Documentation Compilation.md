@@ -29,6 +29,18 @@ HBnB follows a **layered architecture** to ensure **separation of concerns, main
 - **✅ Presentation Layer**: Handles user interactions via a web interface. This includes all HTTP services and API endpoints.
 - **✅ Business Logic Layer**: Contains core logic and models (e.g., User, Place, Review, Amenity). This layer processes requests, applies business rules, and coordinates data flow between the frontend and storage.
 - **✅ Persistence Layer**: Manages data storage and retrieval.
-- **✅ Infrastructure Layer**: Provides support for caching, authentication, and security.
 
 ### 📐 High-Level Package Diagram
+
+![Blank diagram](https://github.com/user-attachments/assets/6f14c1cf-f23e-47d2-a0f7-4d36ec2bc681)
+
+
+### 💁🏻‍♀️ Explanation
+
+- **Presentation Layer**: Exposes a RESTful API and web interface. It handles incoming HTTP requests, routes them to the appropriate logic, and returns responses.
+- **Business Logic Layer**: Contains the core classes and logic (e.g., User, Place, Review, Amenity) that enforce business rules, validate data, and orchestrate interactions between layers.
+- **Data Access Layer**: Abstracts how data is stored and retrieved.
+
+
+
+---
