@@ -44,3 +44,23 @@ HBnB follows a **layered architecture** to ensure **separation of concerns, main
 
 
 ---
+
+
+## Business Logic Layer
+
+### 📐 Class Diagram
+
+
+
+### 🔑 Key Entities and Their Relationships
+- **User**: Represents a person using the platform. Can be a regular user or an admin. Users can own places and leave reviews.
+- **Place**: Represents a property listed by a user. Contains attributes like title, description, price, and location.
+- **Review**: Stores feedback and ratings left by users on places. Each review is linked to a user and a place.
+- **Amenity**: Represents features (e.g., Wi-Fi, pool) that can be associated with places.
+
+### 📌 Design Considerations
+- **Use of inheritance** Common attributes such as id, created_at, and updated_at are abstracted in a BaseModel.
+- **Encapsulation** Data is accessed and modified through methods to maintain integrity and control.
+- **Associations** **One-to-many between User and Place **One-to-many between Place and Review **Many-to-many between Place and Amenity
+
+---
