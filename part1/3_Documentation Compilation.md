@@ -50,7 +50,67 @@ HBnB follows a **layered architecture** to ensure **separation of concerns, main
 
 ### 📐 Class Diagram
 
+```mermaid
+classDiagram
+class User {
+    +UUID id
+    +String first_name
+    +String last_name
+    +String email
+    +String password
+    +Bool is_admin
+    +Datetime created_at
+    +Datetime updated_at
+    +register
+    +update_profile
+    +delete_account
+}
 
+class Place {
+    +UUID id
+    +String title
+    +String description
+    +Float price
+    +Float latitude
+    +Float longitude
+    +UUID owner_id
+    +Datetime created_at
+    +Datetime updated_at
+    +create
+    +update
+    +delete
+    +list_amenities
+}
+
+class Review {
+    +UUID id
+    +UUID user_id
+    +UUID place_id
+    +Int rating
+    +String comment
+    +Datetime created_at
+    +Datetime updated_at
+    +submit
+    +update
+    +delete
+}
+
+class Amenity {
+    +UUID id
+    +String name
+    +String description
+    +Datetime created_at
+    +Datetime updated_at
+    +create
+    +update
+    +delete
+}
+
+User --> "1..*" Place : owns
+User --> "1..*" Review : writes
+Place --> "1..*" Review : has
+Place --> "*" Amenity : includes
+```
 
 ### 🔑 Key Entities and Their Relationships
 - **User**: Represents a person using the platform. Can be a regular user or an admin. Users can own places and leave reviews.
