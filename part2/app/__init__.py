@@ -6,6 +6,7 @@ def create_app():
     api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API', doc='/api/v1/')
 
     # Placeholder for API namespaces (endpoints will be added later)
-    # Additional namespaces for places, reviews, and amenities will be added later
-
+    # Register the users namespace
+    
+    api.add_namespace(users_ns, path='/api/v1/users')
     return app
