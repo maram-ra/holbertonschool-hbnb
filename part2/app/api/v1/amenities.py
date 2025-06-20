@@ -12,17 +12,15 @@ amenity_model = api.model('Amenity', {
 class AmenityList(Resource):
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
-    @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new amenity"""
-        # Placeholder for the logic to register a new amenity
-        pass
+        new_amenity = api.payload
+        new_amenity['id'] = str(len(AMENITIES) + 1)
+        AMENITIES.append(new_amenity)
+        return new_amenity, 201
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
-        """Retrieve a list of all amenities"""
-        # Placeholder for logic to return a list of all amenities
-        pass
+        return AMENITIES, 200
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
