@@ -8,6 +8,8 @@ amenity_model = api.model('Amenity', {
     'name': fields.String(required=True, description='Name of the amenity')
 })
 
+AMENITIES = []
+
 @api.route('/')
 class AmenityList(Resource):
     @api.expect(amenity_model)
@@ -22,14 +24,17 @@ class AmenityList(Resource):
     def get(self):
         return AMENITIES, 200
 
-@api.route('/<amenity_id>')
+@api.route('/<string:amenity_id>')
 class AmenityResource(Resource):
     @api.response(200, 'Amenity details retrieved successfully')
     @api.response(404, 'Amenity not found')
+    @api.marshal_with(amenity_model)
     def get(self, amenity_id):
         """Get amenity details by ID"""
-        # Placeholder for the logic to retrieve an amenity by ID
-        pass
+        for amenity in AMENITIES:
+            if amenity['id'] == amenity_id:
+                return amenity
+        api.abort(404, f"Amenity {amenity_id} not found")
 
     @api.expect(amenity_model)
     @api.response(200, 'Amenity updated successfully')
@@ -37,5 +42,11 @@ class AmenityResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, amenity_id):
         """Update an amenity's information"""
-        # Placeholder for the logic to update an amenity by ID
-        pass
+        for amenity in AMENITIES:
+            if amenity['id'] == amenity_id:
+                data = api.payload
+                if not data or 'name' not in data:
+                    api.abort(400, "Invalid input data")
+                amenity['name'] = data['name']
+                return {"message": "Amenity updated successfully"}
+        api.abort(404, f"Amenity {amenity_id} not found")
