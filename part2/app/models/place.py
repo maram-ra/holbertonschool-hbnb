@@ -22,12 +22,12 @@ class Place(BaseModel):
         self.price = float(price)
         self.latitude = float(latitude)
         self.longitude = float(longitude)
-        self.owner = owner
+        self.owner_id = owner_id
         self.reviews = []
-        self.amenities = []
+        self.self.amenity_ids = []
 
     def add_review(self, review):
         self.reviews.append(review)
 
-    def add_amenity(self, amenity):
-        self.amenities.append(amenity)
+    def add_amenity(self, amenity_id):
+        self.amenity_ids.append(amenity_id)
