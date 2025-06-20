@@ -1,4 +1,6 @@
 from app.models.user import User
+from app.models.amenity import Amenity
+from app.models.place import Place
 
 # In-memory repository to simulate data persistence
 class InMemoryRepository:
@@ -44,6 +46,8 @@ def serialize(obj):
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
+        self.amenity_repo = InMemoryRepository()
+        self.place_repo = InMemoryRepository()
 
     # Create a new user and return serialized data
     def create_user(self, data):
@@ -71,36 +75,62 @@ class HBnBFacade:
         return [serialize(user) for user in self.user_repo.all()]
         
     def create_amenity(self, amenity_data):
-        # Placeholder for logic to create an amenity
-        pass
+        amenity = Amenity(**amenity_data)
+        self.amenity_repo.add(amenity)
+        return serialize(amenity)
 
     def get_amenity(self, amenity_id):
-        # Placeholder for logic to retrieve an amenity by ID
-        pass
+        amenity = self.amenity_repo.get(amenity_id)
+        return serialize(amenity) if amenity else None
     
     def get_all_amenities(self):
-        # Placeholder for logic to retrieve all amenities
-        pass
+        return [serialize(a) for a in self.amenity_repo.all()]
     
     def update_amenity(self, amenity_id, amenity_data):
-        # Placeholder for logic to update an amenity
-        pass
+        amenity = self.amenity_repo.update(amenity_id, data)
+        return serialize(amenity) if amenity else None
 
     def create_place(self, place_data):
-        # Placeholder for logic to create a place, including validation for price, latitude, and longitude
-        pass
-
+        required_fields = ['title', 'price', 'latitude', 'longitude', 'owner_id']
+        if not all(k in place_data for k in required_fields):
+            raise ValueError("Missing required place fields")
+            
+        place = Place(**place_data)
+        self.place_repo.add(place)
+        return serialize(place)
+        
     def get_place(self, place_id):
-        # Placeholder for logic to retrieve a place by ID, including associated owner and amenities
-        pass
+        place = self.place_repo.get(place_id)
+        if not place:
+            return None
+            
+        owner = self.user_repo.get(place.owner_id)
+        amenities = [self.amenity_repo.get(aid) for aid in getattr(place, 'amenity_ids', [])]
+        
+        return {
+            "id": place.id,
+            "title": place.title,
+            "description": place.description,
+            "latitude": place.latitude,
+            "longitude": place.longitude,
+            "owner": serialize(owner) if owner else None,
+            "amenities": [serialize(a) for a in amenities if a]
+        }
 
-    def get_all_places(self):
-        # Placeholder for logic to retrieve all places
-        pass
+def get_all_places(self):
+    return [
+        {
+            "id": p.id,
+            "title": p.title,
+            "latitude": p.latitude,
+            "longitude": p.longitude
+        }
+        for p in self.place_repo.all()
+    ]
 
-    def update_place(self, place_id, place_data):
-        # Placeholder for logic to update a place
-        pass
+def update_place(self, place_id, place_data):
+    place = self.place_repo.update(place_id, place_data)
+    return serialize(place) if place else None
 
 # Instantiate the facade
 facade = HBnBFacade()
