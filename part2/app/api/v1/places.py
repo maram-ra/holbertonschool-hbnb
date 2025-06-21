@@ -76,3 +76,20 @@ class PlaceResource(Resource):
             api.abort(404, str(ve))
         except Exception as e:
             api.abort(400, str(e))
+
+
+from flask_restx import fields
+# at top with imports...
+
+review_model = api.model('PlaceReview', {
+    'id': fields.String(),
+    'text': fields.String(),
+    'rating': fields.Integer(),
+    'user_id': fields.String()
+})
+
+place_model = api.model('Place', {
+    # existing fields...
+    'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
+})
+
