@@ -134,3 +134,80 @@ def update_place(self, place_id, place_data):
 
 # Instantiate the facade
 facade = HBnBFacade()
+
+
+
+from app.models.review import Review
+from app.services.repositories import user_repo, place_repo, review_repo
+
+class HBnBFacade:
+
+    def create_review(self, review_data):
+        # Validate required fields
+        for f in ("user_id", "place_id", "rating", "text"):
+            if not review_data.get(f):
+                raise ValueError(f"{f} is required")
+
+        # Check if user exists
+        user = user_repo.get(review_data["user_id"])
+        if not user:
+            raise ValueError("user_id not found")
+
+        # Check if place exists
+        place = place_repo.get(review_data["place_id"])
+        if not place:
+            raise ValueError("place_id not found")
+
+        # Validate rating range
+        r = review_data["rating"]
+        if not isinstance(r, int) or r < 1 or r > 5:
+            raise ValueError("rating must be 1–5")
+
+        # Create and save review
+        new = Review(
+            id=generate_uuid(),
+            user_id=review_data["user_id"],
+            place_id=review_data["place_id"],
+            rating=r,
+            text=review_data["text"]
+        )
+        review_repo.save(new)
+        return new
+
+    def get_review(self, review_id):
+        review = review_repo.get(review_id)
+        if not review:
+            return None
+        return review
+
+    def get_all_reviews(self):
+        return review_repo.get_all()
+
+    def get_reviews_by_place(self, place_id):
+        place = place_repo.get(place_id)
+        if not place:
+            return None
+        return [r for r in review_repo.get_all() if r.place_id == place_id]
+
+    def update_review(self, review_id, review_data):
+        review = review_repo.get(review_id)
+        if not review:
+            return None
+        # Allow changing text and rating only
+        if "text" in review_data:
+            review.text = review_data["text"]
+        if "rating" in review_data:
+            r = review_data["rating"]
+            if not isinstance(r, int) or r < 1 or r > 5:
+                raise ValueError("rating must be 1–5")
+            review.rating = r
+        review.updated_at = datetime.now()
+        review_repo.save(review)
+        return review
+
+    def delete_review(self, review_id):
+        review = review_repo.get(review_id)
+        if not review:
+            return False
+        review_repo.delete(review_id)
+        return True
