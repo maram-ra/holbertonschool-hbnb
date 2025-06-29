@@ -169,7 +169,7 @@ class HBnBFacade:
             raise ValueError("rating must be between 1 and 5")
 
         review = Review(
-            id=generate_uuid(),
+            id=str(uuid.uuid4()),
             user_id=review_data["user_id"],
             place_id=review_data["place_id"],
             rating=rating,
