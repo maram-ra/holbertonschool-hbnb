@@ -1,14 +1,13 @@
 import re
 from datetime import datetime
+import uuid
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
-import uuid
 from app.persistence.repository import user_repo
 
 
-# In-memory repository to simulate data persistence
 class InMemoryRepository:
     def __init__(self):
         self.storage = {}
@@ -37,19 +36,20 @@ class InMemoryRepository:
     def all(self):
         return list(self.storage.values())
 
+
 def serialize(obj):
     data = obj.__dict__.copy()
-    data.pop('password', None)  
+    data.pop('password', None)  # Remove password field if present
     if 'created_at' in data:
         data['created_at'] = data['created_at'].isoformat()
     if 'updated_at' in data:
         data['updated_at'] = data['updated_at'].isoformat()
     return data
 
-# Main facade
+
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = user_repo
+        self.user_repo = user_repo  # Use shared singleton repository
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
@@ -60,15 +60,18 @@ class HBnBFacade:
             raise ValueError("First name and last name are required")
 
         email = data.get("email")
+        password = data.get("password")
         if not email or not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             raise ValueError("Invalid email format")
+        if not password:
+            raise ValueError("Password is required")
 
         user = User(
             first_name=data["first_name"],
             last_name=data["last_name"],
             email=data["email"]
         )
-        user.hash_password(data["password"])
+        user.hash_password(password)
         self.user_repo.add(user)
         return serialize(user)
 
@@ -222,6 +225,3 @@ class HBnBFacade:
             return False
         self.review_repo.delete(review_id)
         return True
-
-
-
