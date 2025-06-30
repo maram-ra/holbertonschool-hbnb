@@ -5,7 +5,7 @@ from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
 import uuid
-from app.repositories.user_repo import user_repo
+from app.persistence.user_repo import user_repo
 
 
 # In-memory repository to simulate data persistence
