@@ -50,3 +50,6 @@ class InMemoryRepository(Repository):
 
     def get_by_attribute(self, attr_name, attr_value):
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
+
+# Create a shared instance of the user repository
+user_repo = InMemoryRepository()
