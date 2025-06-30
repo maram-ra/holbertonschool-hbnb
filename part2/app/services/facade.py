@@ -88,7 +88,7 @@ class HBnBFacade:
         return serialize(user) if user else None
 
     def get_all_users(self):
-        return [serialize(user) for user in self.user_repo.all()]
+        return [serialize(user) for user in self.user_repo.get_all()]
 
     # ---------------- AMENITIES ---------------- #
     def create_amenity(self, amenity_data):
