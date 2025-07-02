@@ -22,7 +22,6 @@ class Place(BaseModel):
         self.price = float(price)
         self.latitude = float(latitude)
         self.longitude = float(longitude)
-        self.owner_id = owner_id
         self.reviews = []
         self.self.amenity_ids = []
 
