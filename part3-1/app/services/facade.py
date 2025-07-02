@@ -7,6 +7,7 @@ from app.models.place import Place
 from app.models.review import Review
 from app.persistence.repository import user_repo
 
+
 class InMemoryRepository:
     def __init__(self):
         self.storage = {}
@@ -34,8 +35,13 @@ class InMemoryRepository:
     def delete(self, obj_id):
         return self.storage.pop(obj_id, None)
 
-    def all(self):
+    def get_all(self):
         return list(self.storage.values())
+
+    # Alias to support facade calls to `.all()` if desired
+    def all(self):
+        return self.get_all()
+
 
 def serialize(obj):
     data = obj.__dict__.copy()
@@ -46,9 +52,10 @@ def serialize(obj):
         data['updated_at'] = data['updated_at'].isoformat()
     return data
 
+
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = user_repo  # This should be your global user repo instance
+        self.user_repo = user_repo
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
@@ -65,7 +72,6 @@ class HBnBFacade:
         if not password:
             raise ValueError("Password is required")
 
-        # Check if email already exists
         existing_user = self.user_repo.get_by_attribute('email', email)
         if existing_user:
             raise ValueError("Email already registered")
@@ -104,7 +110,8 @@ class HBnBFacade:
         return serialize(user)
 
     def get_all_users(self):
-        return [serialize(user) for user in self.user_repo.all()]
+        # Changed from .all() to .get_all()
+        return [serialize(user) for user in self.user_repo.get_all()]
 
     # ----- AMENITIES -----
     def create_amenity(self, amenity_data):
@@ -119,7 +126,7 @@ class HBnBFacade:
         return serialize(amenity) if amenity else None
 
     def get_all_amenities(self):
-        return [serialize(a) for a in self.amenity_repo.all()]
+        return [serialize(a) for a in self.amenity_repo.get_all()]
 
     def update_amenity(self, amenity_id, amenity_data):
         amenity = self.amenity_repo.update(amenity_id, amenity_data)
@@ -162,7 +169,7 @@ class HBnBFacade:
             "owner_id": place.owner_id,
             "owner": serialize(owner) if owner else None,
             "amenities": [serialize(a) for a in amenities if a],
-            "reviews": [serialize(r) for r in self.review_repo.all() if r.place_id == place.id]
+            "reviews": [serialize(r) for r in self.review_repo.get_all() if r.place_id == place.id]
         }
 
     def get_all_places(self):
@@ -173,7 +180,7 @@ class HBnBFacade:
                 "latitude": p.latitude,
                 "longitude": p.longitude
             }
-            for p in self.place_repo.all()
+            for p in self.place_repo.get_all()
         ]
 
     def update_place(self, place_id, place_data):
@@ -216,13 +223,13 @@ class HBnBFacade:
         return serialize(review) if review else None
 
     def get_all_reviews(self):
-        return [serialize(r) for r in self.review_repo.all()]
+        return [serialize(r) for r in self.review_repo.get_all()]
 
     def get_reviews_by_place(self, place_id):
         place = self.place_repo.get(place_id)
         if not place:
             return None
-        return [serialize(r) for r in self.review_repo.all() if r.place_id == place_id]
+        return [serialize(r) for r in self.review_repo.get_all() if r.place_id == place_id]
 
     def update_review(self, review_id, review_data):
         review = self.review_repo.get(review_id)
@@ -243,7 +250,7 @@ class HBnBFacade:
         return serialize(review)
 
     def get_user_review_for_place(self, user_id, place_id):
-        for review in self.review_repo.all():
+        for review in self.review_repo.get_all():
             if review.user_id == user_id and review.place_id == place_id:
                 return review
         return None
