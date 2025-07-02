@@ -5,9 +5,17 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 api = Namespace('users', description='User operations')
 
 # Define the user model for input validation and documentation
+
+user_model = api.model('User', {
+    'first_name': fields.String(required=True, description='First name of the user'),
+    'last_name': fields.String(required=True, description='Last name of the user'),
+    'email': fields.String(required=True, description='Email of the user'),
+    'password': fields.String(required=True, description='Password for the user')
+})
+
 user_update_model = api.model('UserUpdate', {
     'first_name': fields.String(required=False),
-    'last_name': fields.String(required=False)
+    'last_name': fields.String(required=False),
     'email': fields.String(required=True, description='Email of the user'),
     'password': fields.String(required=True, description='Password for the user')
 })
@@ -48,7 +56,7 @@ class UserResource(Resource):
 
 
     @jwt_required()
-    @api.expect(user_model)
+    @api.expect(user_update_model)
     @api.response(200, 'User updated successfully')
     @api.response(403, 'Unauthorized')
     @api.response(400, 'Invalid input')
