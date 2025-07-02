@@ -1,10 +1,12 @@
 from flask_restx import Namespace, Resource, fields
-from app.services import facade
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.services import facade
 
 api = Namespace('places', description='Place operations')
 
-# Define the models for related entities
+# ----- MODELS -----
+
+# Related models
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity')
@@ -17,8 +19,15 @@ user_model = api.model('PlaceUser', {
     'email': fields.String(description='Email of the owner')
 })
 
-# Define the place model for input validation and documentation
-place_model = api.model('Place', {
+review_model = api.model('PlaceReview', {
+    'id': fields.String(),
+    'text': fields.String(),
+    'rating': fields.Integer(),
+    'user_id': fields.String()
+})
+
+# Input model for creating/updating
+place_input_model = api.model('PlaceInput', {
     'title': fields.String(required=True, description='Title of the place'),
     'description': fields.String(description='Description of the place'),
     'price': fields.Float(required=True, description='Price per night'),
@@ -27,11 +36,20 @@ place_model = api.model('Place', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
+# Output model including ID, owner_id, and reviews
+place_output_model = api.inherit('PlaceOutput', place_input_model, {
+    'id': fields.String(),
+    'owner_id': fields.String(),
+    'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
+})
+
+# ----- ROUTES -----
+
 @api.route('/')
 class PlaceList(Resource):
     @jwt_required()
-    @api.expect(place_model)
-    @api.response(201, 'Place successfully created')
+    @api.expect(place_input_model)
+    @api.response(201, 'Place successfully created', model=place_output_model)
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place (authenticated user only)"""
@@ -40,7 +58,7 @@ class PlaceList(Resource):
             api.abort(400, "No input data provided")
 
         user = get_jwt_identity()
-        data['owner_id'] = user['id']  
+        data['owner_id'] = user['id']
 
         try:
             new_place = facade.create_place(data)
@@ -48,15 +66,16 @@ class PlaceList(Resource):
         except Exception as e:
             api.abort(400, str(e))
 
-    @api.response(200, 'List of places retrieved successfully')
+    @api.response(200, 'List of places retrieved successfully', model=[place_output_model])
     def get(self):
         """Retrieve a list of all places"""
         places = facade.get_all_places()
         return places
 
+
 @api.route('/<string:place_id>')
 class PlaceResource(Resource):
-    @api.response(200, 'Place details retrieved successfully')
+    @api.response(200, 'Place details retrieved successfully', model=place_output_model)
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get place details by ID"""
@@ -66,8 +85,9 @@ class PlaceResource(Resource):
         return place
 
     @jwt_required()
-    @api.expect(place_model)
+    @api.expect(place_input_model)
     @api.response(200, 'Place updated successfully')
+    @api.response(403, 'Unauthorized')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
@@ -82,7 +102,7 @@ class PlaceResource(Resource):
         if not place:
             api.abort(404, f"Place {place_id} not found")
 
-        if place['owner_id'] != user['id']:  # Adjust key if place is an object
+        if place['owner_id'] != user['id']:
             api.abort(403, "You are not authorized to update this place")
 
         try:
@@ -91,19 +111,19 @@ class PlaceResource(Resource):
         except Exception as e:
             api.abort(400, str(e))
 
+    @jwt_required()
+    @api.response(200, 'Place deleted successfully')
+    @api.response(403, 'Unauthorized')
+    @api.response(404, 'Place not found')
+    def delete(self, place_id):
+        """Delete a place (only by owner)"""
+        user = get_jwt_identity()
+        place = facade.get_place_by_id(place_id)
+        if not place:
+            api.abort(404, f"Place {place_id} not found")
 
-from flask_restx import fields
-# at top with imports...
+        if place['owner_id'] != user['id']:
+            api.abort(403, "You are not authorized to delete this place")
 
-review_model = api.model('PlaceReview', {
-    'id': fields.String(),
-    'text': fields.String(),
-    'rating': fields.Integer(),
-    'user_id': fields.String()
-})
-
-place_model = api.model('Place', {
-    # existing fields...
-    'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
-})
-
+        facade.delete_place(place_id)
+        return {"message": "Place deleted successfully"}, 200
