@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('places', description='Place operations')
 
@@ -29,14 +30,19 @@ place_model = api.model('Place', {
 
 @api.route('/')
 class PlaceList(Resource):
+    @jwt_required()
     @api.expect(place_model)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new place"""
+        """Register a new place (authenticated user only)"""
         data = api.payload
         if not data:
             api.abort(400, "No input data provided")
+
+        user = get_jwt_identity()
+        data['owner_id'] = user['id']  
+
         try:
             new_place = facade.create_place(data)
             return new_place, 201
@@ -60,20 +66,29 @@ class PlaceResource(Resource):
             api.abort(404, f"Place {place_id} not found")
         return place
 
+    @jwt_required()
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
-        """Update a place's information"""
+        """Update a place's information (only by owner)"""
+        user = get_jwt_identity()
         data = api.payload
+
         if not data:
             api.abort(400, "No input data provided")
+
+        place = facade.get_place_by_id(place_id)
+        if not place:
+            api.abort(404, f"Place {place_id} not found")
+
+        if place['owner_id'] != user['id']:  # Adjust key if place is an object
+            api.abort(403, "You are not authorized to update this place")
+
         try:
             updated = facade.update_place(place_id, data)
             return {"message": "Place updated successfully"}
-        except ValueError as ve:
-            api.abort(404, str(ve))
         except Exception as e:
             api.abort(400, str(e))
 
