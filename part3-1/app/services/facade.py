@@ -27,7 +27,9 @@ class InMemoryRepository:
     def update(self, obj_id, data):
         obj = self.get(obj_id)
         if obj:
-            obj.update(data)
+            for key, value in data.items():
+                setattr(obj, key, value)
+            obj.updated_at = datetime.now()
         return obj
 
     def delete(self, obj_id):
@@ -39,7 +41,7 @@ class InMemoryRepository:
 
 def serialize(obj):
     data = obj.__dict__.copy()
-    data.pop('password', None)  # Remove password field if present
+    data.pop('password', None)
     if 'created_at' in data:
         data['created_at'] = data['created_at'].isoformat()
     if 'updated_at' in data:
@@ -49,7 +51,7 @@ def serialize(obj):
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = user_repo  # Use shared singleton repository
+        self.user_repo = user_repo
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
@@ -84,25 +86,24 @@ class HBnBFacade:
         return serialize(user) if user else None
 
     def update_user(self, user_id, data):
-    user = self.user_repo.get(user_id)
-    if not user:
-        raise ValueError("User not found")
+        user = self.user_repo.get(user_id)
+        if not user:
+            raise ValueError("User not found")
 
-    allowed_fields = {"first_name", "last_name"}
-    for key in data:
-        if key not in allowed_fields:
-            raise ValueError(f"Cannot update field: {key}")
+        allowed_fields = {"first_name", "last_name"}
+        for key in data:
+            if key not in allowed_fields:
+                raise ValueError(f"Cannot update field: {key}")
 
-    for key, value in data.items():
-        setattr(user, key, value)
+        for key, value in data.items():
+            setattr(user, key, value)
 
-    user.updated_at = datetime.now()
-    self.user_repo.add(user)
-    return serialize(user)
-
+        user.updated_at = datetime.now()
+        self.user_repo.add(user)
+        return serialize(user)
 
     def get_all_users(self):
-        return [serialize(user) for user in self.user_repo.get_all()]
+        return [serialize(user) for user in self.user_repo.all()]
 
     # ---------------- AMENITIES ---------------- #
     def create_amenity(self, amenity_data):
@@ -139,26 +140,16 @@ class HBnBFacade:
             raise ValueError("Latitude must be between -90 and 90 and longitude between -180 and 180")
 
         place = Place(**place_data)
+        place.amenity_ids = place_data.get("amenities", [])
         self.place_repo.add(place)
         return serialize(place)
 
-    def get_place(self, place_id):
+    def get_place_by_id(self, place_id):
         place = self.place_repo.get(place_id)
         if not place:
             return None
-        owner = self.user_repo.get(place_data["owner_id"])
-        if not owner:
-            raise ValueError("Invalid owner_id")
-            
-        place = Place(
-            title=place_data["title"],
-            description=place_data.get("description", ""),
-            price=place_data["price"],
-            latitude=place_data["latitude"],
-            longitude=place_data["longitude"],
-            owner=owner
-        )
-        place.amenity_ids = place_data.get("amenities", [])
+        owner = self.user_repo.get(place.owner_id)
+        amenities = [self.amenity_repo.get(aid) for aid in getattr(place, 'amenity_ids', [])]
 
         return {
             "id": place.id,
@@ -166,8 +157,10 @@ class HBnBFacade:
             "description": place.description,
             "latitude": place.latitude,
             "longitude": place.longitude,
+            "owner_id": place.owner_id,
             "owner": serialize(owner) if owner else None,
-            "amenities": [serialize(a) for a in amenities if a]
+            "amenities": [serialize(a) for a in amenities if a],
+            "reviews": [serialize(r) for r in self.review_repo.all() if r.place_id == place.id]
         }
 
     def get_all_places(self):
@@ -184,6 +177,9 @@ class HBnBFacade:
     def update_place(self, place_id, place_data):
         place = self.place_repo.update(place_id, place_data)
         return serialize(place) if place else None
+
+    def delete_place(self, place_id):
+        return self.place_repo.delete(place_id)
 
     # ---------------- REVIEWS ---------------- #
     def create_review(self, review_data):
@@ -245,11 +241,10 @@ class HBnBFacade:
         return serialize(review)
 
     def get_user_review_for_place(self, user_id, place_id):
-    for review in self.review_repo.all():
-        if review.user_id == user_id and review.place_id == place_id:
-            return review
-    return None
-
+        for review in self.review_repo.all():
+            if review.user_id == user_id and review.place_id == place_id:
+                return review
+        return None
 
     def delete_review(self, review_id):
         review = self.review_repo.get(review_id)
