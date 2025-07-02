@@ -1,12 +1,16 @@
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask import request
 from app.services import facade
 
 api = Namespace('places', description='Place operations')
 
+def is_admin():
+    claims = get_jwt()
+    return claims.get('is_admin', False)
+
 # ----- MODELS -----
 
-# Related models
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity')
@@ -26,7 +30,6 @@ review_model = api.model('PlaceReview', {
     'user_id': fields.String()
 })
 
-# Input model for creating/updating places
 place_input_model = api.model('PlaceInput', {
     'title': fields.String(required=True, description='Title of the place'),
     'description': fields.String(description='Description of the place'),
@@ -36,7 +39,6 @@ place_input_model = api.model('PlaceInput', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
-# Output model for places including ID, owner_id, and reviews
 place_output_model = api.inherit('PlaceOutput', place_input_model, {
     'id': fields.String(),
     'owner_id': fields.String(),
@@ -91,10 +93,11 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
-        """Update a place's information (only by owner)"""
-        user = get_jwt_identity()
-        data = api.payload
+        """Update a place's information (owner or admin)"""
+        current_user = get_jwt_identity()
+        admin = is_admin()
 
+        data = api.payload
         if not data:
             api.abort(400, "No input data provided")
 
@@ -102,12 +105,12 @@ class PlaceResource(Resource):
         if not place:
             api.abort(404, f"Place {place_id} not found")
 
-        if place['owner_id'] != user['id']:
+        if not admin and place['owner_id'] != current_user['id']:
             api.abort(403, "You are not authorized to update this place")
 
         try:
             updated = facade.update_place(place_id, data)
-            return {"message": "Place updated successfully"}
+            return updated, 200
         except Exception as e:
             api.abort(400, str(e))
 
@@ -116,14 +119,19 @@ class PlaceResource(Resource):
     @api.response(403, 'Unauthorized')
     @api.response(404, 'Place not found')
     def delete(self, place_id):
-        """Delete a place (only by owner)"""
-        user = get_jwt_identity()
+        """Delete a place (owner or admin)"""
+        current_user = get_jwt_identity()
+        admin = is_admin()
+
         place = facade.get_place_by_id(place_id)
         if not place:
             api.abort(404, f"Place {place_id} not found")
 
-        if place['owner_id'] != user['id']:
+        if not admin and place['owner_id'] != current_user['id']:
             api.abort(403, "You are not authorized to delete this place")
 
-        facade.delete_place(place_id)
-        return {"message": "Place deleted successfully"}, 200
+        try:
+            facade.delete_place(place_id)
+            return {"message": "Place deleted successfully"}, 200
+        except Exception as e:
+            api.abort(400, str(e))
