@@ -7,7 +7,6 @@ from app.models.place import Place
 from app.models.review import Review
 from app.persistence.repository import user_repo
 
-
 class InMemoryRepository:
     def __init__(self):
         self.storage = {}
@@ -38,7 +37,6 @@ class InMemoryRepository:
     def all(self):
         return list(self.storage.values())
 
-
 def serialize(obj):
     data = obj.__dict__.copy()
     data.pop('password', None)
@@ -48,15 +46,14 @@ def serialize(obj):
         data['updated_at'] = data['updated_at'].isoformat()
     return data
 
-
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = user_repo
+        self.user_repo = user_repo  # This should be your global user repo instance
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
 
-    # ---------------- USERS ---------------- #
+    # ----- USERS -----
     def create_user(self, data):
         if not data.get("first_name") or not data.get("last_name"):
             raise ValueError("First name and last name are required")
@@ -68,10 +65,15 @@ class HBnBFacade:
         if not password:
             raise ValueError("Password is required")
 
+        # Check if email already exists
+        existing_user = self.user_repo.get_by_attribute('email', email)
+        if existing_user:
+            raise ValueError("Email already registered")
+
         user = User(
             first_name=data["first_name"],
             last_name=data["last_name"],
-            email=data["email"]
+            email=email
         )
         user.hash_password(password)
         self.user_repo.add(user)
@@ -83,7 +85,7 @@ class HBnBFacade:
 
     def get_user_by_email(self, email):
         user = self.user_repo.get_by_attribute('email', email)
-        return serialize(user) if user else None
+        return user  # **Important**: Return the user object (not serialized) for password check
 
     def update_user(self, user_id, data):
         user = self.user_repo.get(user_id)
@@ -105,7 +107,7 @@ class HBnBFacade:
     def get_all_users(self):
         return [serialize(user) for user in self.user_repo.all()]
 
-    # ---------------- AMENITIES ---------------- #
+    # ----- AMENITIES -----
     def create_amenity(self, amenity_data):
         if not amenity_data.get("name"):
             raise ValueError("Amenity name is required")
@@ -124,7 +126,7 @@ class HBnBFacade:
         amenity = self.amenity_repo.update(amenity_id, amenity_data)
         return serialize(amenity) if amenity else None
 
-    # ---------------- PLACES ---------------- #
+    # ----- PLACES -----
     def create_place(self, place_data):
         required = ["title", "price", "latitude", "longitude", "owner_id"]
         for key in required:
@@ -155,6 +157,7 @@ class HBnBFacade:
             "id": place.id,
             "title": place.title,
             "description": place.description,
+            "price": place.price,
             "latitude": place.latitude,
             "longitude": place.longitude,
             "owner_id": place.owner_id,
@@ -181,7 +184,7 @@ class HBnBFacade:
     def delete_place(self, place_id):
         return self.place_repo.delete(place_id)
 
-    # ---------------- REVIEWS ---------------- #
+    # ----- REVIEWS -----
     def create_review(self, review_data):
         for field in ("user_id", "place_id", "rating", "text"):
             if not review_data.get(field):
@@ -252,3 +255,7 @@ class HBnBFacade:
             return False
         self.review_repo.delete(review_id)
         return True
+
+
+# Create one facade instance to use across your app
+facade = HBnBFacade()
