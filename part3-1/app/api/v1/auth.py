@@ -28,8 +28,7 @@ class Login(Resource):
 
             # 3) Generate JWT using object attributes, not subscription
             access_token = create_access_token(
-                    identity=str(user.id),
-                    additional_claims={"is_admin": user.is_admin}
+                identity={"id": str(user.id), "is_admin": user.is_admin}
             )
             return {'access_token': access_token}, 200
 
