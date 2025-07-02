@@ -11,7 +11,7 @@ def is_admin():
     return claims.get('is_admin', False)
 
 # Models
-admin_user_update_model = admin_api.model('AdminUserUpdate', {
+admin_user_update_model = admin_ns.model('AdminUserUpdate', {
     'first_name': fields.String(required=False),
     'last_name': fields.String(required=False),
     'email': fields.String(required=False),
