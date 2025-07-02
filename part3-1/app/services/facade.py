@@ -84,8 +84,7 @@ class HBnBFacade:
         return serialize(user) if user else None
 
     def get_user_by_email(self, email):
-        user = self.user_repo.get_by_attribute('email', email)
-        return user  # **Important**: Return the user object (not serialized) for password check
+        return self.user_repo.get_by_attribute('email', email)
 
     def update_user(self, user_id, data):
         user = self.user_repo.get(user_id)
