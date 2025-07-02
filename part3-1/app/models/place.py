@@ -16,6 +16,7 @@ class Place(BaseModel):
             raise ValueError("Longitude must be between -180.0 and 180.0.")
         if not isinstance(owner, User):
             raise TypeError("Owner must be a User instance.")
+        self.owner_id = owner.id
 
         self.title = title
         self.description = description
@@ -24,7 +25,7 @@ class Place(BaseModel):
         self.longitude = float(longitude)
         self.owner_id = owner_id
         self.reviews = []
-        self.self.amenity_ids = []
+        self.amenity_ids = []
 
     def add_review(self, review):
         self.reviews.append(review)
