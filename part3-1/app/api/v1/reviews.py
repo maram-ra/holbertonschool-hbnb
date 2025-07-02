@@ -35,7 +35,7 @@ class ReviewList(Resource):
 
         try:
             review = facade.create_review(data)
-            return review.to_dict(), 201
+            return review, 201
         except ValueError as e:
             api.abort(400, str(e))
 
