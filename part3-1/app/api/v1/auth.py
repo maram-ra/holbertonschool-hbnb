@@ -1,11 +1,9 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import create_access_token
 from app.services import facade
-from app.persistence.repository import user_repo
 
 api = Namespace('auth', description='Authentication operations')
 
-# Model for input validation
 login_model = api.model('Login', {
     'email': fields.String(required=True, description='User email'),
     'password': fields.String(required=True, description='User password')
@@ -17,27 +15,36 @@ class Login(Resource):
     def post(self):
         """Authenticate user and return a JWT token"""
         credentials = api.payload
-
-        # Step 1: Get the user data (dict) from facade
-        user_data = facade.get_user_by_email(credentials['email'])
-        if not user_data:
-            return {'error': 'Invalid credentials'}, 401
-
-        # Step 2: Fetch original user object from the repo
         try:
+            # Debug: log payload
+            print(f"[DEBUG] Login attempt for email: {credentials.get('email')}")
+
+            # Fetch the User object (not serialized)
             user = facade.get_user_by_email(credentials['email'])
-            if not user or not user.verify_password(credentials['password']):
+            print(f"[DEBUG] Fetched user: {user}")
+
+            if not user:
+                print("[DEBUG] No user found")
                 return {'error': 'Invalid credentials'}, 401
-            access_token = create_access_token(identity={'id': str(user.id), 'is_admin': user.is_admin})
+
+            # Verify password
+            if not user.verify_password(credentials['password']):
+                print("[DEBUG] Password verification failed")
+                return {'error': 'Invalid credentials'}, 401
+
+            # Create and return token
+            access_token = create_access_token(identity={
+                'id': str(user.id),
+                'is_admin': user.is_admin
+            })
+            print(f"[DEBUG] Token generated for user id: {user.id}")
             return {'access_token': access_token}, 200
+
         except Exception as e:
-            return {'message': 'Internal Server Error', 'error': str(e)}, 500
-
-
-        # Step 3: Create access token
-        access_token = create_access_token(identity={
-            'id': str(user.id),
-            'is_admin': user.is_admin
-        })
-
-        return {'access_token': access_token}, 200
+            # Print full traceback on server console
+            import traceback; traceback.print_exc()
+            # Return error message in response
+            return {
+                'message': 'Internal Server Error',
+                'error': str(e)
+            }, 500
