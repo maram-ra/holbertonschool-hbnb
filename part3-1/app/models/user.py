@@ -16,6 +16,7 @@ class User(BaseModel):
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
+        self.password = None
         
     def hash_password(self, password):
         """Hashes the password before storing it."""
@@ -25,4 +26,6 @@ class User(BaseModel):
     def verify_password(self, password):
         """Verifies if the provided password matches the hashed password."""
         from app import bcrypt
+        if not self.password:
+            raise ValueError("No password has been set for this user.")
         return bcrypt.check_password_hash(self.password, password)
