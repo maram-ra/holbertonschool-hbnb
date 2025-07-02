@@ -24,9 +24,15 @@ class Login(Resource):
             return {'error': 'Invalid credentials'}, 401
 
         # Step 2: Fetch original user object from the repo
-        user = user_repo.get(user_data['id'])
-        if not user or not user.verify_password(credentials['password']):
-            return {'error': 'Invalid credentials'}, 401
+        try:
+            user = facade.get_user_by_email(credentials['email'])
+            if not user or not user.verify_password(credentials['password']):
+                return {'error': 'Invalid credentials'}, 401
+            access_token = create_access_token(identity={'id': str(user.id), 'is_admin': user.is_admin})
+            return {'access_token': access_token}, 200
+        except Exception as e:
+            return {'message': 'Internal Server Error', 'error': str(e)}, 500
+
 
         # Step 3: Create access token
         access_token = create_access_token(identity={
