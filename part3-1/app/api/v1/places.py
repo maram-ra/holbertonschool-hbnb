@@ -26,7 +26,7 @@ review_model = api.model('PlaceReview', {
     'user_id': fields.String()
 })
 
-# Input model for creating/updating
+# Input model for creating/updating places
 place_input_model = api.model('PlaceInput', {
     'title': fields.String(required=True, description='Title of the place'),
     'description': fields.String(description='Description of the place'),
@@ -36,7 +36,7 @@ place_input_model = api.model('PlaceInput', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
-# Output model including ID, owner_id, and reviews
+# Output model for places including ID, owner_id, and reviews
 place_output_model = api.inherit('PlaceOutput', place_input_model, {
     'id': fields.String(),
     'owner_id': fields.String(),
