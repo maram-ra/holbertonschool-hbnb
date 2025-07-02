@@ -17,5 +17,6 @@ class Review(BaseModel):
 
         self.text = text
         self.rating = int(rating)
-        self.place = place
-        self.user = user
+        self.place_id = place.id
+        self.user_id = user.id
+
