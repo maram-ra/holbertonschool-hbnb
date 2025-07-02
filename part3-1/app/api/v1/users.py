@@ -33,15 +33,15 @@ user_update_model = users_api.model('UserUpdate', {
 })
 
 # Admin routes
-@admin_api.route('/users/<user_id>')
+@admin_ns.route('/users/<user_id>')
 class AdminUserModify(Resource):
     @jwt_required()
-    @admin_api.expect(admin_user_update_model)
+    @admin_ns.expect(admin_user_update_model)
     def put(self, user_id):
         if not is_admin():
             return {'error': 'Admin privileges required'}, 403
 
-        data = admin_api.payload
+        data = admin_ns.payload
         email = data.get('email')
         if email:
             existing_user = facade.get_user_by_email(email)
