@@ -1,10 +1,13 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask import request
 
 api = Namespace('users', description='User operations')
 
-# Define the user model for input validation and documentation
+def is_admin():
+    claims = get_jwt()
+    return claims.get('is_admin', False)
 
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
@@ -22,26 +25,31 @@ user_update_model = api.model('UserUpdate', {
 
 @api.route('/')
 class UserList(Resource):
+    @jwt_required()
     @api.expect(user_model, validate=True)
-    @api.response(201, 'User successfully created')
-    @api.response(400, 'Email already registered')
-    @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new user"""
+        """Register a new user (Admins only)"""
+        if not is_admin():
+            return {'error': 'Admin privileges required'}, 403
+
         user_data = api.payload
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
         new_user = facade.create_user(user_data)
-        return {'id': new_user['id'], 'first_name': new_user['first_name'], 'last_name': new_user['last_name'], 'email': new_user['email']}, 201
+        return {
+            'id': new_user['id'],
+            'first_name': new_user['first_name'],
+            'last_name': new_user['last_name'],
+            'email': new_user['email']
+        }, 201
 
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
         """Get all users"""
         users = facade.get_all_users()
         return users, 200
-
 
 @api.route('/<user_id>')
 class UserResource(Resource):
@@ -52,16 +60,17 @@ class UserResource(Resource):
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
-        return {'id': user['id'], 'first_name': user['first_name'], 'last_name': user['last_name'], 'email': user['email']}, 200
-
+        return {
+            'id': user['id'],
+            'first_name': user['first_name'],
+            'last_name': user['last_name'],
+            'email': user['email']
+        }, 200
 
     @jwt_required()
     @api.expect(user_update_model)
-    @api.response(200, 'User updated successfully')
-    @api.response(403, 'Unauthorized')
-    @api.response(400, 'Invalid input')
     def put(self, user_id):
-        """Update user details (only self, and cannot change email/password)"""
+        """Update user details (only self; cannot change email or password here)"""
         current_user = get_jwt_identity()
         if current_user['id'] != user_id:
             return {'error': 'Unauthorized'}, 403
