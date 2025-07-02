@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flask import request
 
 users_api = Namespace('users', description='User operations')
-admin_api = Namespace('admin', description='Admin operations')
+admin_ns = Namespace('admin', description='Admin-only ops')
 
 def is_admin():
     claims = get_jwt()
