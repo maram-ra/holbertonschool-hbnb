@@ -84,8 +84,22 @@ class HBnBFacade:
         return serialize(user) if user else None
 
     def update_user(self, user_id, data):
-        user = self.user_repo.update(user_id, data)
-        return serialize(user) if user else None
+    user = self.user_repo.get(user_id)
+    if not user:
+        raise ValueError("User not found")
+
+    # Only allow certain fields to be updated
+    allowed_fields = {"first_name", "last_name"}
+    for key in data:
+        if key not in allowed_fields:
+            raise ValueError(f"Cannot update field: {key}")
+            
+    for key, value in data.items():
+        setattr(user, key, value)
+
+    user.updated_at = datetime.now()
+    self.user_repo.add(user)
+    return serialize(user)
 
     def get_all_users(self):
         return [serialize(user) for user in self.user_repo.get_all()]
@@ -218,6 +232,12 @@ class HBnBFacade:
         review.updated_at = datetime.now()
         self.review_repo.add(review)
         return serialize(review)
+
+    def get_user_review_for_place(self, user_id, place_id):
+    for review in self.review_repo.all():
+        if review.user_id == user_id and review.place_id == place_id:
+            return review
+    return None
 
     def delete_review(self, review_id):
         review = self.review_repo.get(review_id)
