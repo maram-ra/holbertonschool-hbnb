@@ -62,3 +62,6 @@ class AmenityResource(Resource):
             return updated_amenity, 200
         except Exception as e:
             return {'error': str(e)}, 400
+
+# Export namespace with expected name
+amenities_ns = api
