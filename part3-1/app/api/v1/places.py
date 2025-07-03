@@ -135,3 +135,6 @@ class PlaceResource(Resource):
             return {"message": "Place deleted successfully"}, 200
         except Exception as e:
             api.abort(400, str(e))
+
+# Export namespace
+places_ns = api
