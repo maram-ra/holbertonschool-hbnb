@@ -5,8 +5,10 @@ from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
-from app.persistence.repository import user_repo
+from app.services.repositories.user_repository import UserRepository
 
+def serialize(obj):
+    return obj.to_dict() if obj else None
 
 class InMemoryRepository:
     def __init__(self):
@@ -55,7 +57,7 @@ def serialize(obj):
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = user_repo
+        self.user_repo = UserRepository()
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
