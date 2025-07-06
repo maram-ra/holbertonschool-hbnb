@@ -7,8 +7,6 @@ from app.models.place import Place
 from app.models.review import Review
 from app.services.repositories.user_repository import UserRepository
 
-def serialize(obj):
-    return obj.to_dict() if obj else None
 
 class InMemoryRepository:
     def __init__(self):
@@ -40,19 +38,14 @@ class InMemoryRepository:
     def get_all(self):
         return list(self.storage.values())
 
-    # Alias to support facade calls to `.all()` if desired
     def all(self):
         return self.get_all()
 
 
 def serialize(obj):
-    data = obj.__dict__.copy()
-    data.pop('password', None)
-    if 'created_at' in data:
-        data['created_at'] = data['created_at'].isoformat()
-    if 'updated_at' in data:
-        data['updated_at'] = data['updated_at'].isoformat()
-    return data
+    if hasattr(obj, 'to_dict'):
+        return obj.to_dict()
+    return obj
 
 
 class HBnBFacade:
@@ -112,7 +105,6 @@ class HBnBFacade:
         return serialize(user)
 
     def get_all_users(self):
-        # Changed from .all() to .get_all()
         return [serialize(user) for user in self.user_repo.get_all()]
 
     # ----- AMENITIES -----
