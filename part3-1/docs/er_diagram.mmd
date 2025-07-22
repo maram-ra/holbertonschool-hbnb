@@ -1,47 +1,47 @@
 erDiagram
     USERS {
-        TEXT id PK
-        TEXT first_name
-        TEXT last_name
-        TEXT email UNIQUE
-        TEXT password
-        BOOLEAN is_admin
-        TEXT created_at
-        TEXT updated_at
+        id TEXT PK
+        first_name TEXT
+        last_name TEXT
+        email TEXT UNIQUE
+        password TEXT
+        is_admin BOOLEAN
+        created_at TEXT
+        updated_at TEXT
     }
 
     PLACES {
-        TEXT id PK
-        TEXT title
-        TEXT description
-        REAL price
-        REAL latitude
-        REAL longitude
-        TEXT owner_id FK
-        TEXT created_at
-        TEXT updated_at
+        id TEXT PK
+        title TEXT
+        description TEXT
+        price REAL
+        latitude REAL
+        longitude REAL
+        owner_id TEXT FK
+        created_at TEXT
+        updated_at TEXT
     }
 
     REVIEWS {
-        TEXT id PK
-        TEXT text
-        INTEGER rating
-        TEXT place_id FK
-        TEXT user_id FK
-        TEXT created_at
-        TEXT updated_at
+        id TEXT PK
+        text TEXT
+        rating INTEGER
+        place_id TEXT FK
+        user_id TEXT FK
+        created_at TEXT
+        updated_at TEXT
     }
 
     AMENITIES {
-        TEXT id PK
-        TEXT name
-        TEXT created_at
-        TEXT updated_at
+        id TEXT PK
+        name TEXT
+        created_at TEXT
+        updated_at TEXT
     }
 
     PLACE_AMENITY {
-        TEXT place_id PK, FK
-        TEXT amenity_id PK, FK
+        place_id TEXT PK FK
+        amenity_id TEXT PK FK
     }
 
     USERS ||--o{ PLACES : owns
