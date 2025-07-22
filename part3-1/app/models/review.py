@@ -1,22 +1,27 @@
+from app.persistence.repository import db
 from app.models.base_model import BaseModel
-from app.models.place import Place
-from app.models.user import User
 
 class Review(BaseModel):
-    def __init__(self, text, rating, place, user):
-        super().__init__()
+    __tablename__ = 'reviews'
 
-        if not text:
-            raise ValueError("Review text is required.")
-        if not (1 <= rating <= 5):
-            raise ValueError("Rating must be between 1 and 5.")
-        if not isinstance(place, Place):
-            raise TypeError("Place must be a Place instance.")
-        if not isinstance(user, User):
-            raise TypeError("User must be a User instance.")
+    text = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
 
-        self.text = text
-        self.rating = int(rating)
-        self.place_id = place.id
-        self.user_id = user.id
+    #Foreign keys
+    place_id = db.Column(db.String(60), db.ForeignKey('places.id'), nullable=False)
+    user_id = db.Column(db.String(60), db.ForeignKey('users.id'), nullable=False)
 
+    #Relationships (backrefs already defined in User and Place)
+    place = db.relationship('Place', backref=db.backref('reviews', lazy=True))
+    user = db.relationship('User', backref=db.backref('reviews', lazy=True))
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "text": self.text,
+            "rating": self.rating,
+            "place_id": self.place_id,
+            "user_id": self.user_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }
