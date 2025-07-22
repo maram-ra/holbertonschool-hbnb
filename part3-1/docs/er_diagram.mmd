@@ -1,0 +1,51 @@
+erDiagram
+    USERS {
+        TEXT id PK
+        TEXT first_name
+        TEXT last_name
+        TEXT email UNIQUE
+        TEXT password
+        BOOLEAN is_admin
+        TEXT created_at
+        TEXT updated_at
+    }
+
+    PLACES {
+        TEXT id PK
+        TEXT title
+        TEXT description
+        REAL price
+        REAL latitude
+        REAL longitude
+        TEXT owner_id FK
+        TEXT created_at
+        TEXT updated_at
+    }
+
+    REVIEWS {
+        TEXT id PK
+        TEXT text
+        INTEGER rating
+        TEXT place_id FK
+        TEXT user_id FK
+        TEXT created_at
+        TEXT updated_at
+    }
+
+    AMENITIES {
+        TEXT id PK
+        TEXT name
+        TEXT created_at
+        TEXT updated_at
+    }
+
+    PLACE_AMENITY {
+        TEXT place_id PK, FK
+        TEXT amenity_id PK, FK
+    }
+
+    USERS ||--o{ PLACES : owns
+    USERS ||--o{ REVIEWS : writes
+    PLACES ||--o{ REVIEWS : has
+    PLACES ||--o{ PLACE_AMENITY : includes
+    AMENITIES ||--o{ PLACE_AMENITY : available_in
