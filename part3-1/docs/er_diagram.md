@@ -49,4 +49,5 @@ erDiagram
   USER ||--o{ REVIEW : writes
   PLACE ||--o{ REVIEW : has
   PLACE ||--o{ PLACE_AMENITY : includes
-  AMENITY ||--o{ PLACE_AMENITY : available_in
+  AMENITY ||--o{ PLACE_AMENITY : available_in ```
+
