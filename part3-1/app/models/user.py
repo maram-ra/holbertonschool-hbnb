@@ -11,6 +11,10 @@ class User(BaseModel):
     password = db.Column(db.String(256), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
+    # Relationships
+    places = db.relationship('Place', backref='owner', lazy=True)   # One user → many places
+    reviews = db.relationship('Review', backref='author', lazy=True)  # One user → many reviews
+
     def hash_password(self, raw_password):
         self.password = bcrypt.generate_password_hash(raw_password).decode('utf-8')
 
@@ -27,4 +31,3 @@ class User(BaseModel):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
-
