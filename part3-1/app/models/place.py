@@ -23,7 +23,7 @@ class Place(BaseModel):
     owner_id = db.Column(db.String(60), db.ForeignKey('users.id'), nullable=False)
 
     # One-to-Many: Place → Reviews
-    reviews = db.relationship('Review', backref='place', lazy=True)
+    reviews = db.relationship("Review", backref="place_ref", lazy=True)
 
     #Many-to-Many: Place ↔ Amenity
     amenities = db.relationship('Amenity', secondary=place_amenity, backref='places', lazy='subquery')

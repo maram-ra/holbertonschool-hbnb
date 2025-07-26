@@ -11,9 +11,6 @@ class Review(BaseModel):
     place_id = db.Column(db.String(60), db.ForeignKey('places.id'), nullable=False)
     user_id = db.Column(db.String(60), db.ForeignKey('users.id'), nullable=False)
 
-    #Relationships (backrefs already defined in User and Place)
-    place = db.relationship('Place', backref=db.backref('reviews', lazy=True))
-    user = db.relationship('User', backref=db.backref('reviews', lazy=True))
 
     def to_dict(self):
         return {

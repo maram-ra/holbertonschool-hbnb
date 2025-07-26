@@ -40,6 +40,4 @@ class Login(Resource):
                 'error': str(e)
             }, 500
 
-# Export namespaces
-auth_users_ns = users_api
-auth_admin_ns = admin_ns
+

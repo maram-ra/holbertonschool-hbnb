@@ -65,11 +65,11 @@ CREATE TABLE place_amenity (
 INSERT INTO users (
     id, first_name, last_name, email, password, is_admin, created_at, updated_at
 ) VALUES (
-    'admin-uuid-001',
+    '36c9050e-ddd3-4c3b-9731-9f487208bbc1',
     'Admin',
-    'User',
-    'admin@example.com',
-    '$2b$12$P2RBwXfAnT6HnVX.C04z.ePO2.qWnDIX89/kMDDaosB3yn1I7eCZy', -- hash for "admin123"
+    'HBnB',
+    'admin@hbnb.io',
+    '$2b$12$8zh6.85qiNZbFiZ9EyVISO4nkmShUge40..BOb1sCmWqFF86MsXEu', -- hash for "admin1234"
     TRUE,
     datetime('now'),
     datetime('now')
