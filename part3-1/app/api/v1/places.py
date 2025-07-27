@@ -47,7 +47,7 @@ place_output_model = api.inherit('PlaceOutput', place_input_model, {
 
 # ----- ROUTES -----
 
-@api.route('/')
+@api.route('/', strict_slashes=False)
 class PlaceList(Resource):
     @jwt_required()
     @api.expect(place_input_model)
@@ -75,7 +75,7 @@ class PlaceList(Resource):
         return places
 
 
-@api.route('/<string:place_id>')
+@api.route('/<string:place_id>', strict_slashes=False)
 class PlaceResource(Resource):
     @api.response(200, 'Place details retrieved successfully', model=place_output_model)
     @api.response(404, 'Place not found')
