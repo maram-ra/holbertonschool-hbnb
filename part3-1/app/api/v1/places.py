@@ -1,7 +1,11 @@
+print("📍 places.py LOADED!")
+
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flask import request
-from app.services import facade
+from app.services.facade import facade
+print("💡 facade ID:", id(facade))
+
 
 api = Namespace('places', description='Place operations')
 
@@ -54,13 +58,14 @@ class PlaceList(Resource):
     @api.response(201, 'Place successfully created', model=place_output_model)
     @api.response(400, 'Invalid input data')
     def post(self):
+        print("🔥 inside POST /places")
         """Register a new place (authenticated user only)"""
         data = api.payload
         if not data:
             api.abort(400, "No input data provided")
-
+            
         user = get_jwt_identity()
-        data['owner_id'] = user['id']
+        data['owner_id'] = user["id"] if isinstance(user, dict) else user
 
         try:
             new_place = facade.create_place(data)

@@ -1,37 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="icon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="images/icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <img src="logo.png" class="logo" alt="App Logo">
-        <nav>
-            <a href="index.html">Home</a>
-        </nav>
-    </header>
+  
+  <!-- Header with logo and nav -->
+   <header class="site-header">
+  <img src="images/logo.png" alt="HBnB Logo" class="logo">
 
-    <main>
-        <form id="login-form">
-            <h2>Login</h2>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+  <nav class="main-nav">
+    <a href="index.html">Home</a>
+    <a href="index.html">Places</a>
+    <a href="login.html" class="login-button" id="login-link">Login</a>
+  </nav>
+</header>
 
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
 
-            <button type="submit">Login</button>
-        </form>
-    </main>
+  <main class="login-page">
+    <section class="login-form-section">
+      <h2>Welcome Back</h2>
+      <p>Please log in to your account</p>
 
-    <footer>
-        <p>All rights reserved.</p>
-    </footer>
+      <form id="login-form" class="login-form">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required>
 
-    <script src="scripts.js"></script>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
+
+        <button type="submit">Login</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 HBnB. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </footer>
+
+  <script src="scripts.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import create_access_token
-from app.services import facade
+from app.services.facade import facade
 
 api = Namespace('auth', description='Authentication operations')
 
@@ -17,27 +17,21 @@ class Login(Resource):
         credentials = api.payload
 
         try:
-            # 1) Fetch the User object (not serialized)
             user = facade.get_user_by_email(credentials['email'])
-            if not user:
+            if not user or not user.verify_password(credentials['password']):
                 return {'error': 'Invalid credentials'}, 401
 
-            # 2) Verify password
-            if not user.verify_password(credentials['password']):
-                return {'error': 'Invalid credentials'}, 401
-
-            # 3) Generate JWT using object attributes, not subscription
             access_token = create_access_token(
-                identity={"id": str(user.id), "is_admin": user.is_admin}
+                identity=str(user.id),
+                additional_claims={"is_admin": True}
             )
+
             return {'access_token': access_token}, 200
 
         except Exception as e:
-            # Dump full traceback to console for debugging
-            import traceback; traceback.print_exc()
+            import traceback
+            traceback.print_exc()
             return {
                 'message': 'Internal Server Error',
                 'error': str(e)
             }, 500
-
-
