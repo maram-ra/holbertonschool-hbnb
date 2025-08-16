@@ -5,14 +5,13 @@ from app.services.facade import facade
 
 api = Namespace('reviews', description='Review operations')
 
-
 review_model = api.model('Review', {
     'text': fields.String(required=True),
     'rating': fields.Integer(required=True, min=1, max=5),
     'place_id': fields.String(required=True)
 })
 
-@api.route('/')
+@api.route('/', methods=['POST', 'OPTIONS'])
 class ReviewList(Resource):
     @jwt_required()
     @api.expect(review_model)
@@ -39,6 +38,10 @@ class ReviewList(Resource):
             return review, 201
         except ValueError as e:
             api.abort(400, str(e))
+
+    def options(self):
+        return {}, 200
+
 
 @api.route('/<string:review_id>')
 class ReviewResource(Resource):
@@ -81,10 +84,13 @@ class ReviewResource(Resource):
         return {"message": "Review deleted successfully"}, 200
 
 
-@api.route('/places/<string:place_id>/reviews')
+@api.route('/places/<string:place_id>/reviews', methods=['GET', 'OPTIONS'])
 class PlaceReviewList(Resource):
     def get(self, place_id):
         reviews = facade.get_reviews_by_place(place_id)
         if reviews is None:
             api.abort(404, "Place not found")
         return [r.to_dict() for r in reviews], 200
+
+    def options(self, place_id):
+        return {}, 200
