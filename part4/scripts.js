@@ -38,7 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // === [TASK 2] Load Places on Home Page ===
-  if (currentPath.includes('index.html')) {
+  if (currentPath.endsWith('/') || currentPath.includes('index.html')) {
+
     checkAuthAndLoadPlaces();
     setupPriceFilter();
   }
@@ -58,11 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchPlaceDetails(token, placeId);
   }
 
-  // === [TASK 4] Submit Review for a Place ===
-  if (currentPath.includes('add_review.html') && reviewForm) {
-    const token = checkAuthentication();
-    const placeId = getPlaceIdFromURL();
+  // === [TASK 4] Submit Review (place.html فقط) ===
+if (reviewForm) {
+  const token = checkAuthentication();            
+  const placeId = getPlaceIdFromURL();
 
+  if (!placeId) {
+    alert('Missing place id in URL');
+  } else {
     reviewForm.addEventListener('submit', async (event) => {
       event.preventDefault();
 
@@ -70,15 +74,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const rating = document.getElementById('rating').value;
 
       try {
-        const response = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}/reviews`, {
+        const response = await fetch(`http://127.0.0.1:5000/api/v1/reviews/`, {
+
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
+           credentials: 'include', 
           body: JSON.stringify({
-            comment: reviewText,
-            rating: parseInt(rating),
+          text: reviewText,
+            rating: parseInt(rating, 10),
             place_id: placeId
           })
         });
@@ -86,15 +92,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.ok) {
           alert('Review submitted successfully!');
           reviewForm.reset();
+          await fetchPlaceDetails(token, placeId); // حدّث التفاصيل والريفيوهات مباشرة
         } else {
-          alert('Failed to submit review');
+          const err = await response.text();
+          alert('Failed to submit review: ' + err);
         }
       } catch (error) {
+        console.error(error);
         alert('Network error while submitting review');
       }
     });
   }
-});
+}
+
 
 // === Helper Functions ===
 
@@ -146,29 +156,47 @@ async function fetchPlaceDetails(token, placeId) {
 
 // Dynamically insert place details and reviews into the page
 function displayPlaceDetails(place) {
-  const detailsSection = document.getElementById('place-details');
+  const root = document.getElementById('place-details');
   const reviewsSection = document.getElementById('reviews');
-  detailsSection.innerHTML = '';
+
+  // Helper to select inside place-details
+  const $ = (selector) => root.querySelector(selector);
+
+  // Fill in details
+  $('.title').textContent = place.title ?? 'Untitled';
+  $('.price').textContent = (place.price != null) ? `$${place.price} / night` : '';
+  $('.host').textContent = `Host: ${place.host ?? 'Unknown'}`;
+  $('.coords').textContent = (place.latitude && place.longitude) 
+    ? `Coords: ${place.latitude}, ${place.longitude}` 
+    : '';
+  $('.description').textContent = place.description || 'No description available.';
+
+  // Amenities
+  const amenitiesBox = $('.amenities');
+  const names = (place.amenities || []).map(a => typeof a === 'string' ? a : a?.name).filter(Boolean);
+  amenitiesBox.innerHTML = names.length
+    ? `<ul>${names.map(n => `<li>${n}</li>`).join('')}</ul>`
+    : `<p class="muted">No amenities listed.</p>`;
+
+  // Image
+  const img = $('.image');
+  if (place.image_url) {
+    img.src = place.image_url;
+    img.alt = place.title || 'Place image';
+  } else {
+    img.style.display = 'none';
+  }
+
+  // Reviews
   reviewsSection.innerHTML = '';
-
-  const container = document.createElement('div');
-  container.classList.add('place-details');
-  container.innerHTML = `
-    <h2>${place.title}</h2>
-    <p class="place-info">Host: ${place.host}</p>
-    <p class="place-info">Price: $${place.price} / night</p>
-    <p class="place-info">${place.description}</p>
-    <p class="place-info"><strong>Amenities:</strong> ${place.amenities.join(', ')}</p>
-  `;
-  detailsSection.appendChild(container);
-
   if (place.reviews && place.reviews.length > 0) {
     place.reviews.forEach((review) => {
       const reviewCard = document.createElement('div');
       reviewCard.classList.add('review-card');
       reviewCard.innerHTML = `
         <p><strong>User ${review.user_id}</strong> - Rating: ${review.rating}</p>
-        <p>${review.text}</p>
+        <p>${review.comment}</p>
+
       `;
       reviewsSection.appendChild(reviewCard);
     });
@@ -176,6 +204,7 @@ function displayPlaceDetails(place) {
     reviewsSection.innerHTML = `<p>No reviews yet.</p>`;
   }
 }
+
 
 
 // Fetch and display all places on the homepage
@@ -207,30 +236,50 @@ async function checkAuthAndLoadPlaces() {
   }
 }
 
-// Create and display place cards dynamically
+const FALLBACK_IMAGES = [
+  'images/cabin-1.jpg',
+  'images/cabin-2.jpg',
+  'images/cabin-3.jpg',
+  'images/cabin-4.jpg',
+  'images/cabin-5.jpg'
+];
+
+function pickImage(place, index) {
+  if (place.image_url && String(place.image_url).trim() !== '') return place.image_url;
+
+  if (place.id) {
+    let h = 0;
+    for (let i = 0; i < String(place.id).length; i++) {
+      h = (h * 31 + String(place.id).charCodeAt(i)) >>> 0;
+    }
+    return FALLBACK_IMAGES[h % FALLBACK_IMAGES.length];
+  }
+
+  return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+}
+
+
 function displayPlaces(places) {
   console.log('Loaded places:', places);
   const container = document.getElementById('places-list');
   container.innerHTML = '';
 
-  places.forEach(place => {
+  places.forEach((place, index) => {
     const card = document.createElement('div');
     card.classList.add('place-card');
     card.setAttribute('data-price', place.price);
 
-    // Use default image if image_url is missing
-    const imageUrl = place.image_url || 'images/placeholder.jpg';
+    const imageUrl = pickImage(place, index);
 
     card.innerHTML = `
-  <img src="${imageUrl}" alt="${place.title}">
-  <span class="place-name">${place.title}</span>
-  <div class="place-info">
-    <span class="price">$${place.price} / night</span>
-    <a class="btn" href="place.html?id=${place.id}">View Details</a>
-  </div>
-`;
+      <img src="${imageUrl}" alt="${place.title}">
+      <span class="place-name">${place.title}</span>
+      <div class="place-info">
+        <span class="price">$${place.price} / night</span>
+        <a class="btn" href="place.html?id=${place.id}">View Details</a>
+      </div>
+    `;
 
-    
     container.appendChild(card);
   });
 }
@@ -263,3 +312,4 @@ function setupPriceFilter() {
     });
   });
 }
+});

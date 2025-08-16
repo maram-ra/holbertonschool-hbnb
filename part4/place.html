@@ -11,29 +11,42 @@
 <body>
 
   <!-- Header with logo and nav -->
-   <header class="site-header">
-  <img src="images/logo.png" alt="HBnB Logo" class="logo">
-
-  <nav class="main-nav">
-    <a href="index.html">Home</a>
-    <a href="index.html">Places</a>
-    <a href="login.html" class="login-button" id="login-link">Login</a>
-  </nav>
-</header>
-
-
- 
+  <header class="site-header">
+    <img src="images/logo.png" alt="HBnB Logo" class="logo">
+    <nav class="main-nav">
+      <a href="login.html" class="login-button" id="login-link">Login</a>
+    </nav>
+  </header>
 
   <main class="place-details-page">
+    <!-- Place details -->
     <section id="place-details" class="place-details">
-      <!-- Place information will be injected dynamically -->
+      <div class="hero">
+        <img class="image" alt="Place image" />
+        <div class="title-wrap">
+          <h1 class="title"></h1>
+          <p class="price"></p>
+          <p class="host"></p>
+          <p class="coords"></p>
+        </div>
+      </div>
+
+      <div class="details">
+        <h2>Amenities</h2>
+        <div class="amenities"></div>
+
+        <h2>Description</h2>
+        <p class="description"></p>
+      </div>
     </section>
 
+    <!-- Reviews -->
     <section id="reviews" class="reviews-section">
       <h2>Reviews</h2>
       <!-- Reviews will be injected here dynamically -->
     </section>
 
+    <!-- Add review form -->
     <section id="add-review" class="add-review-section">
       <h2>Add Your Review</h2>
       <form id="review-form" class="add-review form">

@@ -61,12 +61,21 @@ img {
 /* header */
 .site-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end; 
   align-items: center;
-  padding: 1.2rem 2rem;
+  position: relative; 
+  padding: rem 2rem;
   background-color: #d8d9d0;
   border-bottom: 1px solid #a9a9a9;
 }
+
+.site-header .logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+
 
 .logo {
   height: 45px;
@@ -477,3 +486,159 @@ img {
 }
 
 
+/* ===== Enhanced Place Details ===== */
+.place-details {
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 15px;
+  border: 1px solid #eee;
+  margin-bottom: 2rem;
+}
+
+/* Hero: image + info */
+.place-details .hero {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 20px;
+  
+}
+.place-details .image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 14px;
+  background: #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.place-details .title-wrap {
+  display: grid;
+  gap: 6px;
+}
+.place-details .title {
+  font-family: "DM Sans", sans-serif;
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0;
+  color: #222;
+}
+.place-details .price {
+  font-weight: 600;
+  color: #111;
+  font-size: 1rem;
+}
+.place-details .host,
+.place-details .coords {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Amenities */
+.place-details .amenities {
+  margin-bottom: 1rem;
+}
+.place-details .amenities ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.place-details .amenities li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #ececec;
+  font-size: 13px;
+  color: #333;
+}
+.place-details .amenity-ic {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.place-details .muted {
+  color: #888;
+}
+
+/* Description */
+.place-details .description {
+  color: #444;
+  line-height: 1.6;
+}
+
+/* Reviews */
+.reviews-section {
+  margin-top: 2rem;
+}
+.reviews-section h2 {
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+}
+.review-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.review-card p {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Add Review Form */
+.add-review-section {
+  padding: 1.5rem;
+  background: #f4f4f4;
+  border-radius: 15px;
+  border: 1px solid #ddd;
+  margin-top: 1.5rem;
+}
+.add-review-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+.add-review.form {
+  display: grid;
+  gap: 10px;
+}
+.add-review.form label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.add-review.form textarea,
+.add-review.form select {
+  background: #fafafa;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+}
+.add-review.form button {
+  background-color: #4b4f49;
+  color: #fff;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.add-review.form button:hover {
+  background-color: #3a7e29;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .place-details .hero {
+    grid-template-columns: 1fr;
+  }
+  .place-details .image {
+    height: 200px;
+  }
+}
