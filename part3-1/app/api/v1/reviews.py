@@ -28,7 +28,6 @@ class ReviewList(Resource):
         if place['owner_id'] == user['id']:
             api.abort(400, "You cannot review your own place")
 
-        # Check if already reviewed
         existing = facade.get_user_review_for_place(user['id'], data['place_id'])
         if existing:
             api.abort(400, "You have already reviewed this place")
@@ -41,6 +40,7 @@ class ReviewList(Resource):
 
     def options(self):
         return {}, 200
+
 
 
 @api.route('/<string:review_id>')
@@ -94,3 +94,4 @@ class PlaceReviewList(Resource):
 
     def options(self, place_id):
         return {}, 200
+

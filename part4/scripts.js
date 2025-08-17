@@ -211,13 +211,7 @@ function displayPlaceDetails(place) {
 async function checkAuthAndLoadPlaces() {
   const token = getCookie('token');
   const loginLink = document.getElementById('login-link');
-  if (!token) {
-    if (loginLink) loginLink.style.display = 'block';
-    return;
-  } else {
-    if (loginLink) loginLink.style.display = 'none';
-  }
-
+  
   try {
     const response = await fetch('http://127.0.0.1:5000/api/v1/places', {
       headers: {

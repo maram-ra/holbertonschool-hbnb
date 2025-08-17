@@ -32,70 +32,51 @@ img {
 }
 
 .site-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
+  display: flex;                     /* Use flexbox for easy alignment */
+  align-items: center;               /* Vertically center items */
+  justify-content: space-between;    /* Distribute items left/right */
+  height: 70px;
   background-color: #d8d9d0;
   border-bottom: 1px solid #a9a9a9;
-  position: sticky;
-  top: 0;
+  padding: 0 2rem;
+  position: relative;
   z-index: 1000;
 }
 
-/* Logo stays centered */
+/* Centered logo */
 .logo {
-  height: 40px;
-  margin: 0 2rem;
-}
-
-
-/* Flex container for navigation items aligned to the right */
-.navbar {
-  display: flex;
-  justify-content: flex-end;  /* Push items to the right */
-  gap: 1.5rem;                /* Space between items */
-  align-items: center;        /* Align items vertically */
-}
-
-/* header */
-.site-header {
-  display: flex;
-  justify-content: flex-end; 
-  align-items: center;
-  position: relative; 
-  padding: rem 2rem;
-  background-color: #d8d9d0;
-  border-bottom: 1px solid #a9a9a9;
-}
-
-.site-header .logo {
-  position: absolute;
+  position: absolute;                /* Absolute to keep logo fixed in center */
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 40px;
 }
 
-
-
-.logo {
-  height: 45px;
-}
-
+/* Navigation aligned to the right */
 .main-nav {
-  display: flex;
-  gap: 2rem;
+  display: flex;                     /* Flex container for nav items */
+  align-items: center;
+  gap: 1.5rem;                       /* Space between nav links */
+  margin-left: auto;                 /* Push nav items to the right */
 }
 
-.main-nav a {
+/* Login button style */
+.login-button {
+  padding: 8px 16px;
+  border: 1px solid #333;
+  border-radius: 25px;
   text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  font-weight: 600;
+  color: #111;
+  background: #fff;
+  transition: all 0.3s ease;
+}
+.login-button:hover {
+  background: #333;
+  color: #fff;
 }
 
-.main-nav a:hover {
-  color: #4a9431;
-}
+
 
 /* Outlined button style */
 .btn-outline {
@@ -642,3 +623,4 @@ img {
     height: 200px;
   }
 }
+
